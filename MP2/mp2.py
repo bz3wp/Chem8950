@@ -10,13 +10,12 @@ class MP2:
         self.nocc = uhf.nocc
         self.ntot = uhf.ntot
         g = spin_block_tei(uhf.I) 
-        self.gao = g.transpose(0,2,1,3) - g.transpose(0,2,3,1)
-                     
+        self.gao = g.transpose(0,2,1,3)-g.transpose(0,2,3,1) 
+
     def get_energy(self): 
         C, gao, nocc, ntot, e = self.C, self.gao, self.nocc, self.ntot, self.e
         # transform integrals
-        gmo = np.einsum('pqrs, pP, qQ, rR, sS -> PQRS', gao, C, C, C, C)
-
+        gmo = int_trans_2(gao,C) 
         # get energy
         E = 0.0
         for i in range(nocc):
@@ -33,10 +32,27 @@ def spin_block_tei(gao):
     gao = np.kron(I, gao)
     return np.kron(I, gao.T)
 
+def int_trans_1(gao, C):
+    return np.einsum('pqrs, pP, qQ, rR, sS -> PQRS', gao, C, C, C, C)
+
+def int_trans_2(gao, C):
+
+    return np.einsum('pQRS, pP -> PQRS',
+           np.einsum('pqRS, qQ -> pQRS',
+           np.einsum('pqrS, rR -> pqRS',
+           np.einsum('pqrs, sS -> pqrS', gao, C),C),C),C)
+
 
 if __name__ == '__main__':
     uhf = UHF('Options.ini')
     uhf.get_energy()
     mp2 = MP2(uhf)
     mp2.get_energy()
- 
+    psi4.set_options({'basis':'sto-3g',
+                        'scf_type': 'pk',
+                        'MP2_type' : 'conv',
+                        'puream' : False,
+                        'reference': 'uhf',
+                        'guess' : 'core',
+                        'e_convergence' : 1e-10})
+    psi4.energy('mp2')
