@@ -90,8 +90,6 @@ def int_trans_df(b_pqP, C):
     a = np.einsum('pqP,pi -> iqP',b_pqP,C)
     return np.einsum('iqP,qa -> iaP',a,C)
     
-def int_trans_df_2(b_pqP,C):
-    pass
 if __name__ == '__main__':
     uhf = UHF('Options.ini')
     uhf.get_energy()
