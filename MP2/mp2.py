@@ -48,7 +48,7 @@ if __name__ == '__main__':
     uhf.get_energy()
     mp2 = MP2(uhf)
     mp2.get_energy()
-    psi4.set_options({'basis':'sto-3g',
+    psi4.set_options({'basis':'cc-pvdz',
                         'scf_type': 'pk',
                         'MP2_type' : 'conv',
                         'puream' : False,
