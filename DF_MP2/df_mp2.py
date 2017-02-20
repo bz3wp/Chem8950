@@ -2,7 +2,7 @@ import psi4
 import numpy as np
 from uhf import UHF
 import scipy.linalg as la
-
+import time
 class MP2:
 
     def __init__(self, uhf):
@@ -31,32 +31,42 @@ class MP2:
     
         self.E = 0.0 
     def get_energy(self): 
+        t0 = time.time()
         C, gao, nocc, ntot, e, E = self.C, self.gao, self.nocc, self.ntot, self.e, self.E
         # transform integrals
         gmo = int_trans_2(gao,C) 
         # get energy
         for i in range(nocc):
-            for j in range(nocc):
+            e_i = e[i]
+            for j in range(i,nocc):
+                e_j = e[j]
                 for a in range(nocc,ntot):
-                    for b in range(nocc,ntot):
-                        E += ((1/4)*gmo[i,j,a,b]**2)/(e[i]+e[j]-e[a]-e[b])
+                    for b in range(a,ntot):
+                        E += (gmo[i,j,a,b]**2)/(e_i+e_j-e[a]-e[b])
+        t1 = time.time()
         print('The MP2 correlation energy is {:20.14f}'.format(E))
+        print('MP2 took {:7.5f} seconds'.format(t1-t0))
         self.E = E
         return E 
                
     def get_energy_df(self): 
+        t2 = time.time()
         E_df = 0.0
         C, nocc, ntot, e, E = self.C, self.nocc, self.ntot, self.e, self.E
         gmo_df = int_trans_df(self.b_pqP,C) 
-        gmo_df = gmo_df.transpose(0,2,1,3)-gmo_df.transpose(0,2,3,1) 
+        #gmo_df = gmo_df.transpose(0,2,1,3)-gmo_df.transpose(0,2,3,1) 
         for i in range(nocc):
+            e_i = e[i]
             for j in range(nocc):
+                e_j = e[j]
                 for a in range(nocc,ntot):
                     for b in range(nocc,ntot):
-                        E_df += ((1/4)*gmo_df[i,j,a,b]**2)/(e[i]+e[j]-e[a]-e[b])
-                        #E_df += ((1/4)*(gmo_df[a,i,b,j]-gmo_df[a,j,b,i])(gmo_df[i,a,j,b]-gmo_df[i,b,j,a]))/(e[i]+e[j]-e[a]-e[b])
+                        #E_df += ((1/4)*gmo_df[i,j,a,b]**2)/(e[i]+e[j]-e[a]-e[b])
+                        E_df += ((1/4)*(gmo_df[i,a,j,b]-gmo_df[i,b,j,a])**2)/(e_i+e_j-e[a]-e[b])
+        t3 = time.time()
         print('The DF-MP2 correlation energy is {:20.14f}'.format(E_df))
         print('DF error: {:20.14f}'.format(E-E_df))
+        print('MP2 took {:7.5f} seconds'.format(t3-t2))
 
 def spin_block_tei(gao):
     I = np.eye(2)
@@ -66,8 +76,6 @@ def spin_block_tei(gao):
 def spin_block_tei_df(gao):
     I = np.eye(2)
     return np.kron(I,gao.T).T
-    
-    
 
 def int_trans_1(gao, C):
     return np.einsum('pqrs, pP, qQ, rR, sS -> PQRS', gao, C, C, C, C)
