@@ -45,7 +45,7 @@ class MP2:
                         E += (gmo[i,j,a,b]**2)/(e_i+e_j-e[a]-e[b])
         t1 = time.time()
         print('The MP2 correlation energy is {:20.14f}'.format(E))
-        print('MP2 took {:10.5f} seconds'.format(t1-t0))
+        print('MP2 took {:7.5f} seconds'.format(t1-t0))
         self.E = E
         return E 
                
@@ -70,7 +70,7 @@ class MP2:
         t3 = time.time()
         print('The DF-MP2 correlation energy is {:20.14f}'.format(E_df))
         print('DF error: {:20.14f}'.format(E-E_df))
-        print('DF-MP2 took {:10.5f} seconds'.format(t3-t2))
+        print('DF-MP2 took {:7.5f} seconds'.format(t3-t2))
 def spin_block_tei(gao):
     I = np.eye(2)
     gao = np.kron(I, gao)
