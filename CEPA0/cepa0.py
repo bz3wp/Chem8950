@@ -42,7 +42,7 @@ class CEPA0:
         for iteration in range(self.max_iter):
             t4 = np.einsum('kbcj,ikac -> ijab', gmo[o,v,v,o],t_old)
             t = (gmo[o,o,v,v]+(1/2)*np.einsum('abcd,ijcd->ijab',gmo[v,v,v,v],t_old)+(1/2)*np.einsum('klij,klab->ijab',gmo[o,o,o,o],t_old)+
-                t4.transpose((0,1,2,3))-t4.transpose((1,0,2,3))-t4.transpose((0,1,3,2))+t4.transpose((1,0,3,2)))
+                t4-t4.transpose((1,0,2,3))-t4.transpose((0,1,3,2))+t4.transpose((1,0,3,2)))
 
             t = t*e_ijab
 
@@ -57,35 +57,9 @@ class CEPA0:
             t_old = t
         
         print('The UCEPA0 correlation energy is {:20.14f}'.format(E_CEPA0))
-        print('The total UCEPA0 is {:20.14f}'.format(uhf.E_SCF - E_CEPA0))
+        print('The total UCEPA0 is {:20.14f}'.format(uhf.E_SCF + E_CEPA0))
         #self.E = E
         #return E 
-               
-
-'''    def get_energy_df_alt(self): 
-        t2 = time.time()
-        E_df = 0.0
-        C, nocc, ntot, e, E = self.C, self.nocc, self.ntot, self.e, self.E
-        b_iaP = int_trans_df(self.b_pqP,C) 
-
-        e_ab = e[nocc:]
-        e_vv = e_ab.reshape(-1, 1) + e_ab
-
-        for i in range(nocc):
-            e_i = e[i]
-            for j in range(i,nocc):
-
-                e_j = e[j]
-                e_denom = 1.0 / (e_i + e_j - e_vv)
-                gmo_df_ab = np.einsum('aP, bP ->ab', b_iaP[i,nocc:,:],b_iaP[j,nocc:,:])
-                E_df += np.einsum('ab,ab,ab->', gmo_df_ab, gmo_df_ab - gmo_df_ab.T, e_denom) 
-
-        t3 = time.time()
-
-        print('The DF-MP2 correlation energy is {:20.14f}'.format(E_df))
-        print('DF error: {:20.14f}'.format(E-E_df))
-        print('DF-MP2 took {:7.5f} seconds'.format(t3-t2))
-'''
 def spin_block_tei(gao):
     I = np.eye(2)
     gao = np.kron(I, gao)
