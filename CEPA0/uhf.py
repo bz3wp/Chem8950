@@ -15,6 +15,7 @@ class UHF:
         self.df_basis = psi4.core.BasisSet.build(self.mol, 'DF_BASIS_MP2', config['DEFAULT']['df_basis'],puream=0)        
         self.max_iter = int(config['SCF']['max_iter'])
         self.cepa0_max_iter = int(config['CEPA0']['max_iter'])
+        self.cepa0_df = int(config['CEPA0']['df'])
         self.nalpha = int(config['DEFAULT']['nalpha'])
         self.nbeta = int(config['DEFAULT']['nbeta'])
         self.diis = int(config['SCF']['diis'])
@@ -77,13 +78,13 @@ class UHF:
                 Fa, Fb = self.diis_method(Fa, Fb, Da, Db)
 
             E_SCF = (1/2)*(np.einsum('pq, pq->', Fa+H, Da) + np.einsum('pq,pq->',Fb+H, Db)) +mol.nuclear_repulsion_energy()
-            print('UHF iteration {:3d}: energy {:20.14f} dE {:1.5E}'.format(iteration, E_SCF, (E_SCF - E_old)))
+            #print('UHF iteration {:3d}: energy {:20.14f} dE {:1.5E}'.format(iteration, E_SCF, (E_SCF - E_old)))
 
             if (abs(E_SCF - E_old) < 1.e-10):
                 break
-             
             E_old = E_SCF
             
+        print('Final UHF energy: {:20.14f}'.format(E_SCF)) 
         self.C = la.block_diag(C_a, C_b)
         self.e = np.append(ea,eb)
         self.Dtot = Dtot
