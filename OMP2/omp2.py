@@ -15,10 +15,10 @@ class OMP2:
         g = spin_block_tei(uhf.I) 
         self.hao = spin_block_oei(uhf.H)
         self.gao = g.transpose(0,2,1,3)-g.transpose(0,2,3,1) 
-
+#        print(self.C)
     def get_energy(self): 
         C, gao, hao,nocc, ntot, nvir = self.C, self.gao,self.hao, self.nocc, self.ntot, self.nvir
-    
+ #       print(hao)    
         o = slice(None,nocc)
         v = slice(nocc,None)
         x = np.newaxis
@@ -32,18 +32,15 @@ class OMP2:
         gmo_old = int_trans(gao,C)
         t_old = np.zeros((nocc,nocc,nvir,nvir))
         E_OMP2_old = 0.0
-
+#        print(hmo_old)
+#        print(gmo_old)
         for iteration in range(self.max_iter):
             f = hmo_old + np.einsum('piqi -> pq',gmo_old[:,o,:,o])
             #off diagonal Fock Matrix
             fprime = f.copy()
             np.fill_diagonal(fprime, 0)
-            #print(iteration)
-            #print(fprime)
-
             #updated orbital energies 
             e = f.diagonal()
- 
             # t amplitudes
             t2 = np.einsum('ac,ijcb -> ijab',fprime[v,v],t_old)
             t3 = np.einsum('ki,kjab -> ijab', fprime[o,o],t_old)
@@ -58,7 +55,7 @@ class OMP2:
             tdm3 = np.einsum('pr,qs->pqrs', odmref,odmref)
             odm_gen = odm + odmref
             tdm_gen = tdm + tdm2 - tdm2.transpose((1,0,2,3))-tdm2.transpose((0,1,3,2))+tdm2.transpose((1,0,3,2)) + tdm3 - tdm3.transpose((0,1,3,2))
-            #print(np.trace(odm_gen))        
+            print(odmref)
             #Newton-Raphson
             F = np.einsum('pr,rq->pq',hmo_old,odm_gen)+(1/2)*np.einsum('prst,qrst -> pq',gmo_old,tdm_gen)
             X[o,v] = ((F-F.T)[o,v])/(e[o,x]-e[x,v])
@@ -105,7 +102,7 @@ def int_trans(gao, C):
 
 
 if __name__ == '__main__':
-    uhf = UHF('Options.ini')
+    uhf = UHF('Options1.ini')
     uhf.get_energy()
     omp2 = OMP2(uhf)
     omp2.get_energy()

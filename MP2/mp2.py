@@ -44,11 +44,11 @@ def int_trans_2(gao, C):
 
 
 if __name__ == '__main__':
-    uhf = UHF('Options.ini')
+    uhf = UHF('Optionsoooh.ini')
     uhf.get_energy()
     mp2 = MP2(uhf)
     mp2.get_energy()
-    psi4.set_options({'basis':'cc-pvdz',
+    psi4.set_options({'basis':'sto-3g',
                         'scf_type': 'pk',
                         'MP2_type' : 'conv',
                         'puream' : False,
