@@ -5,6 +5,7 @@ import numpy as np
 import configparser 
 import scipy.linalg as la
 import integrals 
+
 class UHF:
     def __init__(self, filename = 'Options.ini'):
         config = configparser.ConfigParser()
@@ -46,8 +47,6 @@ class UHF:
         Fa = H
         Fb = H 
         E_old = 0.0
-        Da_old = np.zeros_like(H)
-        Db_old = np.zeros_like(H)
         for iteration in range(1, self.max_iter+1):
 
 
@@ -76,8 +75,6 @@ class UHF:
                 break
              
             E_old = E_SCF
-            Da_old = Da
-            Db_old = Db
             
         self.C_a, self.C_b = C_a, C_b 
         self.ea, self.eb = ea, eb
@@ -94,9 +91,9 @@ class UHF:
         print('The dipole moment is {:20.14f}'.format(mu))
         return mu  
 
-
 if __name__=='__main__':
 
     uhf = UHF('Options.ini')
     uhf.get_energy() 
     uhf.get_dipole()
+
