@@ -83,9 +83,7 @@ class UHF:
                 em_b = Fb.dot(Db).dot(S) - S.dot(Db).dot(Fb)
         #     print(em_a)
             #  print(Da)
-                n = len(EM_a)
-                m = len(EM_b)
-                if n < nvector:
+                if len(EM_a) < nvector:
                     EM_a.append(em_a)
                     FA.append(Fa)
                     EM_b.append(em_b)
@@ -101,6 +99,8 @@ class UHF:
                     FB.pop(0)
                     FB.append(Fb)
 
+                n = len(EM_a)
+                m = len(EM_b)
                 p = np.zeros((n,n))
                 if n>=2:
                     for i in range(n):
@@ -143,3 +143,4 @@ if __name__=='__main__':
 
     uhf = UHF('Options.ini')
     uhf.get_energy() 
+    uhf.get_dipole()
