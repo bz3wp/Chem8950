@@ -44,7 +44,7 @@ mints = psi4.core.MintsHelper(basis)
 
 # Overlap
 S = mints.ao_overlap().to_array()
-
+print(S)
 # Kinetic
 T = mints.ao_kinetic().to_array()
 
